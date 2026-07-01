@@ -512,77 +512,80 @@ function svgRoof(v,r){
   return s;
 }
 
-function svgOrbit(v, r){
+function svgOrbit(v,r){
   if(r.warnings.length) return warningState('orbit');
 
-  const bx = 64;
-  const bw = 120;
-  const bTop = 66;
-  const bBottom = 300;
+  const bx=64, bw=120;
+  const bTop=66, bBottom=300;
 
-  // Show ALL orbits
-  const visOrbits = r.numOrbits;
+  const boxTopAltitude = 50;   // Box always represents 50m
+  const startAltitude = v.startingAltitude;
+  const step = v.altitudeProgression;
 
-  let s = '';
+  let s='';
 
-  // Ground + building
-  s += svgLine(bx-50, bBottom, bx+bw+50, bBottom, 'ground-line');
-  s += svgRect(bx, bTop, bw, bBottom-bTop, 'building-fill');
+  s += svgLine(bx-50,bBottom,bx+bw+50,bBottom,'ground-line');
+  s += svgRect(bx,bTop,bw,bBottom-bTop,'building-fill');
 
-  // Floor lines inside building
   for(let i=1;i<8;i++){
-    const fy = bTop + (bBottom-bTop)*i/8;
-    s += svgLine(bx, fy, bx+bw, fy, 'floor-line');
+    const fy=bTop+(bBottom-bTop)*i/8;
+    s+=svgLine(bx,fy,bx+bw,fy,'floor-line');
   }
 
   let topRingY = bBottom;
 
-  const boxHeight = bBottom - bTop;
-  const extraOrbitSpacing = 18; // spacing for orbits above building
+  // Orbit lines inside 50m box
+  const boxOrbitCount = Math.floor((boxTopAltitude - startAltitude) / step) + 1;
 
-  for(let i=0; i<visOrbits; i++){
-    let ry;
+  for(let i=0;i<boxOrbitCount;i++){
+    const altitude = startAltitude + i*step;
+    if(altitude > boxTopAltitude) break;
 
-    if(i < 10){
-      // First 10 orbits distributed inside building height
-      ry = bBottom - (i / 9) * boxHeight;
-    } else {
-      // Extra orbits go above the building
-      ry = bTop - ((i - 9) * extraOrbitSpacing);
-    }
-
-    const top = i === visOrbits - 1;
-    if(top) topRingY = ry;
+    const ratio = (altitude - startAltitude) / (boxTopAltitude - startAltitude);
+    const ry = bBottom - ratio*(bBottom-bTop);
 
     s += svgLine(
-      bx - 26,
+      bx-26,
       ry,
-      bx + bw + 26,
+      bx+bw+26,
       ry,
-      'orbit-ring' + (top ? ' orbit-ring-top' : '')
+      'orbit-ring'
     );
+
+    topRingY = ry;
   }
 
-  // Labels
-  s += svgText(bx-34, bBottom+4, fmtNum(v.startingAltitude,0)+'m', 'dim-label', 'end');
-  s += svgText(bx-34, topRingY+4, fmtNum(v.buildingHeight,0)+'m', 'dim-label', 'end');
+  // Extra orbits above 50m
+  if(v.buildingHeight > boxTopAltitude){
+    const extraOrbits = Math.floor((v.buildingHeight - boxTopAltitude) / step);
 
-  // Drone marker
-  s += droneGlyph(bx+bw+18, topRingY);
+    for(let i=1;i<=extraOrbits;i++){
+      const ry = bTop - i*18;
+      const isTop = i === extraOrbits;
 
-  // Orbit circle diagram (right side)
-  const cx = 485, cy = 140, rad = 62;
-  s += svgCircle(cx, cy, rad, 'orbit-path-dashed');
-  s += arcSegment(cx, cy, rad, -40, 40, 'orbit-leading');
-  s += svgRect(cx-13, cy-13, 26, 26, 'building-fill');
-  s += droneGlyph(cx+rad, cy);
-  s += svgText(
-    cx,
-    cy+rad+26,
-    'ORBIT PATH · '+fmtNum(v.orbitCircumference,0)+' m',
-    'dim-label',
-    'middle'
-  );
+      s += svgLine(
+        bx-26,
+        ry,
+        bx+bw+26,
+        ry,
+        'orbit-ring' + (isTop ? ' orbit-ring-top' : '')
+      );
+
+      topRingY = ry;
+    }
+  }
+
+  s += svgText(bx-34,bBottom+4,fmtNum(startAltitude,0)+'m','dim-label','end');
+  s += svgText(bx-34,bTop+4,'50m','dim-label','end');
+
+  s += droneGlyph(bx+bw+18,topRingY);
+
+  const cx=485,cy=140,rad=62;
+  s += svgCircle(cx,cy,rad,'orbit-path-dashed');
+  s += arcSegment(cx,cy,rad,-40,40,'orbit-leading');
+  s += svgRect(cx-13,cy-13,26,26,'building-fill');
+  s += droneGlyph(cx+rad,cy);
+  s += svgText(cx,cy+rad+26,'ORBIT PATH · '+fmtNum(v.orbitCircumference,0)+' m','dim-label','middle');
 
   s += statReadout([
     ['ORBITS', fmtInt(r.numOrbits)],
