@@ -428,22 +428,51 @@ function calcRoof(v, workHours){
 
 function calcOrbit(v, workHours){
   const warnings=[];
-  if(v.buildingHeight<=0||v.orbitCircumference<=0) warnings.push('Building height and orbit circumference must be greater than 0.');
-  if(v.altitudeProgression<=0) warnings.push('Altitude progression must be greater than 0.');
-  if(v.droneSpeed<=0) warnings.push('Drone speed must be greater than 0 m/s.');
-  if(v.captureInterval<=0) warnings.push('Capture interval must be greater than 0.');
-  if(v.startingAltitude>=v.buildingHeight) warnings.push('Starting altitude must be below the building height.');
+
+  if(v.buildingHeight<=0||v.orbitCircumference<=0)
+    warnings.push('Building height and orbit circumference must be greater than 0.');
+
+  if(v.altitudeProgression<=0)
+    warnings.push('Altitude progression must be greater than 0.');
+
+  if(v.droneSpeed<=0)
+    warnings.push('Drone speed must be greater than 0 m/s.');
+
+  if(v.captureInterval<=0)
+    warnings.push('Capture interval must be greater than 0.');
+
+  if(v.startingAltitude>=v.buildingHeight)
+    warnings.push('Starting altitude must be below the building height.');
+
   if(warnings.length) return {warnings:warnings};
-  const numOrbits = ceilUp((v.buildingHeight-v.startingAltitude)/v.altitudeProgression)+1+3;
-  const actualPhotoSpacing = v.droneSpeed*v.captureInterval;
-  const photosPerOrbit = ceilUp(v.orbitCircumference/actualPhotoSpacing);
-  const totalPhotos = numOrbits*photosPerOrbit;
-  const timePerOrbitMin = v.orbitCircumference/v.droneSpeed/60;
-  const totalCaptureTimeMin = (timePerOrbitMin*numOrbits)+(v.numberOfRelocations*v.timePerRelocation);
-  const totalCaptureDays = totalCaptureTimeMin/(workHours*60);
-  return {warnings:warnings,numOrbits:numOrbits,actualPhotoSpacing:actualPhotoSpacing,photosPerOrbit:photosPerOrbit,
-    totalPhotos:totalPhotos,timePerOrbitMin:timePerOrbitMin,totalCaptureTimeMin:totalCaptureTimeMin,
-    totalCaptureDays:totalCaptureDays};
+
+  const numOrbits =
+    ceilUp((v.buildingHeight - v.startingAltitude) / v.altitudeProgression) + 1 + 3;
+
+  const topOrbitHeight =
+    v.startingAltitude + ((numOrbits - 1) * v.altitudeProgression);
+
+  const actualPhotoSpacing = v.droneSpeed * v.captureInterval;
+  const photosPerOrbit = ceilUp(v.orbitCircumference / actualPhotoSpacing);
+  const totalPhotos = numOrbits * photosPerOrbit;
+  const timePerOrbitMin = v.orbitCircumference / v.droneSpeed / 60;
+  const totalCaptureTimeMin =
+    (timePerOrbitMin * numOrbits) +
+    (v.numberOfRelocations * v.timePerRelocation);
+
+  const totalCaptureDays = totalCaptureTimeMin / (workHours * 60);
+
+  return {
+    warnings,
+    numOrbits,
+    topOrbitHeight,
+    actualPhotoSpacing,
+    photosPerOrbit,
+    totalPhotos,
+    timePerOrbitMin,
+    totalCaptureTimeMin,
+    totalCaptureDays
+  };
 }
 
 function calcCrossGrid(v, workHours){
@@ -565,7 +594,7 @@ function svgOrbit(v, r){
 
   // Labels
   s += svgText(bx-34, bBottom+4, fmtNum(v.startingAltitude,0)+'m', 'dim-label', 'end');
-  s += svgText(bx-34, topRingY+4, fmtNum(v.endaltitude,0)+'m', 'dim-label', 'end');
+  s += svgText(bx-34, topRingY+4, fmtNum(r.topOrbitHeight,0)+'m', 'dim-label', 'end');
 
   // Drone marker
   s += droneGlyph(bx+bw+18, topRingY);
