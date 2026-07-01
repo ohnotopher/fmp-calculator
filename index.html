@@ -512,33 +512,85 @@ function svgRoof(v,r){
   return s;
 }
 
-function svgOrbit(v,r){
+function svgOrbit(v, r){
   if(r.warnings.length) return warningState('orbit');
-  const bx=64,bw=120,bTop=66,bBottom=300;
-  const visOrbits = Math.max(1, r.numOrbits + 3);
-  let s='';
-  s += svgLine(bx-50,bBottom,bx+bw+50,bBottom,'ground-line');
-  s += svgRect(bx,bTop,bw,bBottom-bTop,'building-fill');
-  for(let i=1;i<8;i++){ const fy=bTop+(bBottom-bTop)*i/8; s+=svgLine(bx,fy,bx+bw,fy,'floor-line'); }
-  let topRingY=bBottom;
-  for(let i=0;i<visOrbits;i++){
-    const t = visOrbits>1 ? i/(visOrbits-1) : 0;
-    const ry = bBottom - t*(bBottom-bTop)*0.86;
-    const top = i===visOrbits-1;
-    if(top) topRingY=ry;
-    s += svgLine(bx-26,ry,bx+bw+26,ry,'orbit-ring'+(top?' orbit-ring-top':''));
+
+  const bx = 64;
+  const bw = 120;
+  const bTop = 66;
+  const bBottom = 300;
+
+  // Show ALL orbits
+  const visOrbits = r.numOrbits;
+
+  let s = '';
+
+  // Ground + building
+  s += svgLine(bx-50, bBottom, bx+bw+50, bBottom, 'ground-line');
+  s += svgRect(bx, bTop, bw, bBottom-bTop, 'building-fill');
+
+  // Floor lines inside building
+  for(let i=1;i<8;i++){
+    const fy = bTop + (bBottom-bTop)*i/8;
+    s += svgLine(bx, fy, bx+bw, fy, 'floor-line');
   }
-  s += svgText(bx-34,bBottom+4,fmtNum(v.startingAltitude,0)+'m','dim-label','end');
-  s += svgText(bx-34,topRingY+4,fmtNum(v.buildingHeight,0)+'m','dim-label','end');
-  s += droneGlyph(bx+bw+18,topRingY);
-  const cx=485,cy=140,rad=62;
-  s += svgCircle(cx,cy,rad,'orbit-path-dashed');
-  s += arcSegment(cx,cy,rad,-40,40,'orbit-leading');
-  s += svgRect(cx-13,cy-13,26,26,'building-fill');
-  s += droneGlyph(cx+rad,cy);
-  s += svgText(cx,cy+rad+26,'ORBIT PATH \u00b7 '+fmtNum(v.orbitCircumference,0)+' m','dim-label','middle');
-  s += statReadout([['ORBITS',fmtInt(r.numOrbits)],['PHOTOS',fmtInt(r.totalPhotos)]]);
+
+  let topRingY = bBottom;
+
+  const boxHeight = bBottom - bTop;
+  const extraOrbitSpacing = 18; // spacing for orbits above building
+
+  for(let i=0; i<visOrbits; i++){
+    let ry;
+
+    if(i < 10){
+      // First 10 orbits distributed inside building height
+      ry = bBottom - (i / 9) * boxHeight;
+    } else {
+      // Extra orbits go above the building
+      ry = bTop - ((i - 9) * extraOrbitSpacing);
+    }
+
+    const top = i === visOrbits - 1;
+    if(top) topRingY = ry;
+
+    s += svgLine(
+      bx - 26,
+      ry,
+      bx + bw + 26,
+      ry,
+      'orbit-ring' + (top ? ' orbit-ring-top' : '')
+    );
+  }
+
+  // Labels
+  s += svgText(bx-34, bBottom+4, fmtNum(v.startingAltitude,0)+'m', 'dim-label', 'end');
+  s += svgText(bx-34, topRingY+4, fmtNum(v.buildingHeight,0)+'m', 'dim-label', 'end');
+
+  // Drone marker
+  s += droneGlyph(bx+bw+18, topRingY);
+
+  // Orbit circle diagram (right side)
+  const cx = 485, cy = 140, rad = 62;
+  s += svgCircle(cx, cy, rad, 'orbit-path-dashed');
+  s += arcSegment(cx, cy, rad, -40, 40, 'orbit-leading');
+  s += svgRect(cx-13, cy-13, 26, 26, 'building-fill');
+  s += droneGlyph(cx+rad, cy);
+  s += svgText(
+    cx,
+    cy+rad+26,
+    'ORBIT PATH · '+fmtNum(v.orbitCircumference,0)+' m',
+    'dim-label',
+    'middle'
+  );
+
+  s += statReadout([
+    ['ORBITS', fmtInt(r.numOrbits)],
+    ['PHOTOS', fmtInt(r.totalPhotos)]
+  ]);
+
   return s;
+}
 }
 
 function svgCrossGrid(v,r){
