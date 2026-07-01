@@ -434,7 +434,7 @@ function calcOrbit(v, workHours){
   if(v.captureInterval<=0) warnings.push('Capture interval must be greater than 0.');
   if(v.startingAltitude>=v.buildingHeight) warnings.push('Starting altitude must be below the building height.');
   if(warnings.length) return {warnings:warnings};
-  const numOrbits = ceilUp((v.buildingHeight-v.startingAltitude)/v.altitudeProgression)+1;
+  const numOrbits = ceilUp((v.buildingHeight-v.startingAltitude)/v.altitudeProgression)+1+3;
   const actualPhotoSpacing = v.droneSpeed*v.captureInterval;
   const photosPerOrbit = ceilUp(v.orbitCircumference/actualPhotoSpacing);
   const totalPhotos = numOrbits*photosPerOrbit;
