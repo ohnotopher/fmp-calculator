@@ -686,13 +686,21 @@ function outputsRoof(v,r){
 function outputsOrbit(v,r){
   if(r.warnings.length) return warningRows();
   return [
+    rowHtml('Building Height', fmtNum(v.buildingHeight,0)+' m'),
+    rowHtml('Top Orbit Height', fmtNum(r.topOrbitHeight,0)+' m'),
     rowHtml('Number of Orbits', fmtInt(r.numOrbits)),
     rowHtml('Actual Photo Spacing', fmtNum(r.actualPhotoSpacing,2)+' m'),
     rowHtml('Photos per Orbit (approx.)', fmtInt(r.photosPerOrbit)),
     rowHtml('Total Time per Orbit', fmtTime(r.timePerOrbitMin)),
     rowHtml('Total Photos', fmtInt(r.totalPhotos), {hero:true}),
-    rowHtml('Total Capture Time', fmtTime(r.totalCaptureTimeMin), {hero:true, sub:fmtNum(r.totalCaptureTimeMin,1)+' min total'}),
-    rowHtml('Total Capture Days', fmtDays(r.totalCaptureDays)+' d', {hero:true, sub:'@ '+state.workHours+' hr workday'})
+    rowHtml('Total Capture Time', fmtTime(r.totalCaptureTimeMin), {
+      hero:true,
+      sub:fmtNum(r.totalCaptureTimeMin,1)+' min total'
+    }),
+    rowHtml('Total Capture Days', fmtDays(r.totalCaptureDays)+' d', {
+      hero:true,
+      sub:'@ '+state.workHours+' hr workday'
+    })
   ].join('');
 }
 function outputsCrossGrid(v,r){
