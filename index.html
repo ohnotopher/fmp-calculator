@@ -515,7 +515,7 @@ function svgRoof(v,r){
 function svgOrbit(v,r){
   if(r.warnings.length) return warningState('orbit');
   const bx=64,bw=120,bTop=66,bBottom=300;
-  const visOrbits=Math.max(1,Math.min(9,r.numOrbits));
+  const visOrbits = Math.max(1, r.numOrbits + 3);
   let s='';
   s += svgLine(bx-50,bBottom,bx+bw+50,bBottom,'ground-line');
   s += svgRect(bx,bTop,bw,bBottom-bTop,'building-fill');
