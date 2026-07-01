@@ -419,7 +419,7 @@ function calcRoof(v, workHours){
   const pureCaptureTimeMin = (totalDist/v.speed)/60;
   const totalCaptureTimeSec = ((pureCaptureTimeMin*60)+((tracks-1)*v.turnDelay)+(v.pilotRelocations*v.relocationTime*60))*v.opTimeMultiplier;
   const totalCaptureTimeMin = totalCaptureTimeSec/60;
-  const totalCaptureDays = totalCaptureTimeSec/(workHours*3600);
+  const totalCaptureDays = totalCaptureTimeMin / 60 / state.workHours;
   return {warnings:warnings,w:w,l:l,hStep:hStep,vStep:vStep,tracks:tracks,photosPerTrack:photosPerTrack,
     totalPhotos:totalPhotos,waypoints:waypoints,pureCaptureTimeMin:pureCaptureTimeMin,
     totalCaptureTimeSec:totalCaptureTimeSec,totalCaptureTimeMin:totalCaptureTimeMin,
