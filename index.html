@@ -569,28 +569,25 @@ function svgOrbit(v, r){
   const boxHeight = bBottom - bTop;
   const extraOrbitSpacing = 18; // spacing for orbits above building
 
-  for(let i=0; i<visOrbits; i++){
-    let ry;
+  const orbitTopMargin = 30;
+const orbitBottom = bBottom;
+const orbitTop = orbitTopMargin;
+const orbitRange = orbitBottom - orbitTop;
 
-    if(i < 10){
-      // First 10 orbits distributed inside building height
-      ry = bBottom - (i / 9) * boxHeight;
-    } else {
-      // Extra orbits go above the building
-      ry = bTop - ((i - 9) * extraOrbitSpacing);
-    }
+for(let i=0; i<visOrbits; i++){
+  const ry = orbitBottom - (i / (visOrbits - 1 || 1)) * orbitRange;
 
-    const top = i === visOrbits - 1;
-    if(top) topRingY = ry;
+  const top = i === visOrbits - 1;
+  if(top) topRingY = ry;
 
-    s += svgLine(
-      bx - 26,
-      ry,
-      bx + bw + 26,
-      ry,
-      'orbit-ring' + (top ? ' orbit-ring-top' : '')
-    );
-  }
+  s += svgLine(
+    bx - 26,
+    ry,
+    bx + bw + 26,
+    ry,
+    'orbit-ring' + (top ? ' orbit-ring-top' : '')
+  );
+}
 
   // Labels
   s += svgText(bx-34, bBottom+4, fmtNum(v.startingAltitude,0)+'m', 'dim-label', 'end');
