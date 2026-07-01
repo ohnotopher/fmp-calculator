@@ -605,7 +605,7 @@ function outputsRoof(v,r){
 function outputsOrbit(v,r){
   if(r.warnings.length) return warningRows();
   return [
-    rowHtml('Number of Orbits', fmtInt(r.numOrbits + 3)),
+    rowHtml('Number of Orbits', fmtInt(r.numOrbits)),
     rowHtml('Actual Photo Spacing', fmtNum(r.actualPhotoSpacing,2)+' m'),
     rowHtml('Photos per Orbit (approx.)', fmtInt(r.photosPerOrbit)),
     rowHtml('Total Time per Orbit', fmtTime(r.timePerOrbitMin)),
